@@ -1,0 +1,13 @@
+name: ODEEM_SBS
+title: ODEEM_SBS
+username:
+account: tiago-gandra
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3604707
+bundleId: 4198561
+url: https://tiago-gandra.shinyapps.io/ODEEM_SBS/
+when: 1612833222.85671
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|00_stage1.R|Data/stage1.ods
