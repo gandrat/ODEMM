@@ -57,7 +57,7 @@ data$Sector[data$Sector == "Non-renewable (oil & gas)"] <- "Non-renewable"
 
 data$Links = paste("'", data$Sector, "'", " -> ", "'", data$Pressure, "'", " -> ", "'", data$Ecological.Characteristic, "'")
 
-data = data[ , c(1:3, 14:17)]
+# data = data[ , c(1:3, 14:17)]
 
 data$key = paste0(data$Sector, data$Pressure, data$Ecological.Characteristic)
 
@@ -78,13 +78,13 @@ graph_obj <- function(data, InSector, InPressure, InEco, method, percent){
   
   ### Switch between different ways of selecting the top risks.
   ### The number selected is the column in the data set corresponding to that metric
-  MethodColumn = if (method == "Total Risk"){
-    6
-  }  else if (method == "Impact Risk"){
-    4
-  } else if (method == "Recovery Lag"){
-    5
-  }
+  # MethodColumn = if (method == "Total Risk"){
+  #   'TotalRisk'
+  # }  else if (method == "Impact Risk"){
+  #   'ImpactRisk'
+  # } else if (method == "Recovery Lag"){
+  #   'RecoveryLag'
+  # }
   
   ### Switch between different percentage linkages
   ### What number do we need to divide by to get that percentage of links
@@ -99,12 +99,12 @@ graph_obj <- function(data, InSector, InPressure, InEco, method, percent){
   }
   
   ### Function to perform the calculations of the linkage chains once the correct data set is selected
-  RiskFilter = function (dataset){
-    AllRisk = sum (dataset[ , MethodColumn])
-    dataset$relRisk = dataset[ , MethodColumn]/AllRisk
-    dataset = dataset[order (-dataset$relRisk), ]
-    dataset = dataset [1:(nrow(dataset)/PercentFactor), ]
-    subset(dataset) 
+  RiskFilter = function (data){
+    # AllRisk = sum (data[ , 'ImpactRisk'],na.rm=T)
+    # data$relRisk = data[ , 'ImpactRisk']/AllRisk
+    data = data[order (-data$ImpactRisk), ]
+    data = data [1:(nrow(data)/PercentFactor), ]
+    subset(data) 
   }
   
   data1 = data
@@ -232,12 +232,12 @@ ui <- fluidPage(
                        choices=append('All',sort(data$Ecological.Characteristic))
            )),
     
-    column(3, offset = 1,
-           selectInput(inputId = "Method",
-                       label = "Risk Assessment:",
-                       c('Total Risk' = "Total Risk",
-                         'Impact Risk' = 'Impact Risk',
-                         'Recovery Lag' = 'Recovery Lag'))),
+    # column(3, offset = 1,
+    #        selectInput(inputId = "Method",
+    #                    label = "Risk Assessment:",
+    #                    c('Impact Risk' = 'Impact Risk',
+    #                      'Total Risk' = "Total Risk",
+    #                      'Recovery Lag' = 'Recovery Lag'))),
     
     column(3, offset = 0.5,
            selectInput(inputId = "Percent",
