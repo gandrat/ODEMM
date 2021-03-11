@@ -1,22 +1,23 @@
 library(shiny)
 library(DiagrammeR)
-library(stringr)
 
 rm(list=ls()) #removing previous objects
 
 packageVersion("base")
 options(max.print=1000000000)
 
-# raw = read.csv("Data/Celtic_SeaS_Pressure_Assessment_PB.csv")
-raw = read.csv("Data/SBS_Pressure_Assessment.csv")
-
+raw = read.csv("Data/Celtic_SeaS_Pressure_Assessment_PB.csv")
 data = raw[!raw$Overlap == "NO", ]
+# load("Data/raw.Rda")
 
-#Remove empty spaces at ecochar string
-data$Ecological.Characteristic<-str_trim(data$Ecological.Characteristic, side = c("both"))
-unique(data$Ecological.Characteristic)
+
+# data<-read.csv('Data/SBS_Pressure_Assessment.csv')
+
 # Only need the sectors, pressures, eco char and their scores
 data = data[ , c(1:8)]
+data = data[!data$Overlap == "NO", ]
+nrow(unique(data[,c('Pressure','Sector')]))
+
 # add columns with the values asscociated with the clasifactions
 # score each rating according to Knight et al 2015
 data$Overlap.Score = ifelse(data$Overlap == "W", 1,
@@ -49,17 +50,16 @@ data$RecoveryLag = data$Resilience.Score*data$Persistence.Score
 
 data$TotalRisk = data$ImpactRisk * data$RecoveryLag
 
-
-
 data$Sector = as.character(data$Sector)
 data$Sector[data$Sector == "Non-renewable (oil & gas)"] <- "Non-renewable"
 
 
 data$Links = paste("'", data$Sector, "'", " -> ", "'", data$Pressure, "'", " -> ", "'", data$Ecological.Characteristic, "'")
 
-data = data[ , c(1:3, 14:17)]
+# data = data[ , c(1:3, 14:17)]
 
 data$key = paste0(data$Sector, data$Pressure, data$Ecological.Characteristic)
+
 
 
 ########################################################################
@@ -171,7 +171,7 @@ graph_obj <- function(data, InSector, InPressure, InEco, method, percent){
     paste(NodesSector3, NodesPressure3, NodesEco3)
   } else { " "}
   
-  ########## create object to make plot
+########## create object to make plot
   obj <- paste0("digraph{ 
                 graph [bgcolor='white'; 
                 overlap=true;
@@ -193,20 +193,18 @@ graph_obj <- function(data, InSector, InPressure, InEco, method, percent){
                 edge [arrowhead = none]
                 ",LinksAll2,"
 }", sep= " ")
-  
-}
+
+  }
 
 #write (obj, "H:\\ODEMM\\Analysis\\Network Plot\\Horrendogram\\objline.dot" )
 
 
 ## ui.R ----
-# Step 1:
-# Define UI for app  ----
+
 ui <- fluidPage(
   # App title ----
-  titlePanel("Celtic Seas ODEMM"),
+  titlePanel("South Brazillian Shelf ODEMM"),
   
-  # Top Selection with input and output definitions ----
   # Top Selection with input and output definitions ----
   fluidRow(
     column(3,offset = 1,
@@ -215,7 +213,7 @@ ui <- fluidPage(
                        label = "Choose a 
                        sector:",
                        choices=append('All Sectors',sort(data$Sector))
-           )),
+                       )),
     
     column(3,offset = 0.5,
            # Input: dropdown for each category ----
@@ -223,14 +221,14 @@ ui <- fluidPage(
                        label = "Choose a 
                        pressure:",
                        choices=append('All Pressures',sort(data$Pressure))
-           )),
+                       )),
     
     column(3,offset = 0.5,
            # Input: dropdown for each category ----
            selectInput(inputId = "Ecological",
                        label = "Ecological characteristic:",
                        choices=append('All',sort(data$Ecological.Characteristic))
-           )),
+                         )),
     
     column(3, offset = 1,
            selectInput(inputId = "Method",
@@ -238,7 +236,7 @@ ui <- fluidPage(
                        c('Total Risk' = "Total Risk",
                          'Impact Risk' = 'Impact Risk',
                          'Recovery Lag' = 'Recovery Lag'))),
-    
+
     column(3, offset = 0.5,
            selectInput(inputId = "Percent",
                        label = "Top Percentage of Links:",
