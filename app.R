@@ -204,12 +204,12 @@ graph_obj <- function(data, InSector, InPressure, InEco, method, percent){
 # Define UI for app  ----
 ui <- fluidPage(
   # App title ----
-  titlePanel("Celtic Seas ODEMM"),
+  titlePanel("South Brazillian Shelf ODEMM"),
   
   # Top Selection with input and output definitions ----
   # Top Selection with input and output definitions ----
   fluidRow(
-    column(3,offset = 1,
+    column(2,offset = .2,
            # Input: dropdown for each category ----
            selectInput(inputId = "Sector",
                        label = "Choose a 
@@ -217,7 +217,7 @@ ui <- fluidPage(
                        choices=append('All Sectors',sort(data$Sector))
            )),
     
-    column(3,offset = 0.5,
+    column(2,offset = 0.2,
            # Input: dropdown for each category ----
            selectInput(inputId = "Pressure",
                        label = "Choose a 
@@ -225,7 +225,7 @@ ui <- fluidPage(
                        choices=append('All Pressures',sort(data$Pressure))
            )),
     
-    column(3,offset = 0.5,
+    column(2,offset = 0.2,
            # Input: dropdown for each category ----
            selectInput(inputId = "Ecological",
                        label = "Ecological characteristic:",
@@ -239,7 +239,7 @@ ui <- fluidPage(
     #                      'Total Risk' = "Total Risk",
     #                      'Recovery Lag' = 'Recovery Lag'))),
     
-    column(3, offset = 0.5,
+    column(2, offset = 0.2,
            selectInput(inputId = "Percent",
                        label = "Top Percentage of Links:",
                        c('All' = "All",
