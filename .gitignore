@@ -39,6 +39,7 @@ vignettes/*.pdf
 .Renviron
 
 rsconnect/*
+rsconnect
 
 old/*
 
