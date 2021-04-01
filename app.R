@@ -8,7 +8,7 @@ packageVersion("base")
 options(max.print=1000000000)
 
 # raw = read.csv("Data/Celtic_SeaS_Pressure_Assessment_PB.csv")
-raw = read.csv("Data/SBS_Pressure_Assessment.csv")
+raw = read.csv("Data/Scoring_SOMAR.csv")
 
 data = raw[!raw$Overlap == "NO", ]
 
@@ -32,22 +32,22 @@ data$DoI.Score = ifelse(data$DoI == "A" , 1,
                         ifelse(data$DoI == "C", 0.13,
                                ifelse(data$DoI == "L", 0.01, NA)))
 
-data$Resilience.Score = ifelse(data$Resilience == "L", 0.55,
-                               ifelse(data$Resilience == "M", 0.06, 
-                                      ifelse(data$Resilience == "H", 0.01, NA)))
-
-data$Persistence.Score = ifelse(data$Persistence == "C", 1,
-                                ifelse(data$Persistence == "H", 0.55,
-                                       ifelse(data$Persistence == "M", 0.06, 
-                                              ifelse(data$Persistence == "L", 0.01, NA))))
+# data$Resilience.Score = ifelse(data$Resilience == "L", 0.55,
+#                                ifelse(data$Resilience == "M", 0.06, 
+#                                       ifelse(data$Resilience == "H", 0.01, NA)))
+# 
+# data$Persistence.Score = ifelse(data$Persistence == "C", 1,
+#                                 ifelse(data$Persistence == "H", 0.55,
+#                                        ifelse(data$Persistence == "M", 0.06, 
+#                                               ifelse(data$Persistence == "L", 0.01, NA))))
 
 
 
 ### Calculate Impact Risk, Recovery Lag and Total Risk
 data$ImpactRisk = data$Overlap.Score*data$Frequency.Score*data$DoI.Score
-data$RecoveryLag = data$Resilience.Score*data$Persistence.Score
+# data$RecoveryLag = data$Resilience.Score*data$Persistence.Score
 
-data$TotalRisk = data$ImpactRisk * data$RecoveryLag
+# data$TotalRisk = data$ImpactRisk * data$RecoveryLag
 
 
 
@@ -204,7 +204,7 @@ graph_obj <- function(data, InSector, InPressure, InEco, method, percent){
 # Define UI for app  ----
 ui <- fluidPage(
   # App title ----
-  titlePanel("South Brazillian Shelf ODEMM"),
+  titlePanel("SOMAR ODEMM"),
   
   # Top Selection with input and output definitions ----
   # Top Selection with input and output definitions ----
