@@ -10,7 +10,7 @@ library(stringr)
 
 
 # Make a connection data frame
-raw = read.csv("Data/SBS_Pressure_Assessment.csv")
+raw = read.csv("Data/Pressure_Assessment_SBS_V2.csv")
 
 data = raw[!raw$Overlap == "NO", ]
 
@@ -18,7 +18,7 @@ data = raw[!raw$Overlap == "NO", ]
 data$Ecological.Characteristic<-str_trim(data$Ecological.Characteristic, side = c("both"))
 unique(data$Ecological.Characteristic)
 # Only need the sectors, pressures, eco char and their scores
-data = data[ , c(1:8)]
+# data = data[ , c(1:8)]
 # add columns with the values asscociated with the clasifactions
 # score each rating according to Knight et al 2015
 data$Overlap.Score = ifelse(data$Overlap == "W", 1,
@@ -34,14 +34,14 @@ data$DoI.Score = ifelse(data$DoI == "A" , 1,
                         ifelse(data$DoI == "C", 0.13,
                                ifelse(data$DoI == "L", 0.01, NA)))
 
-data$Resilience.Score = ifelse(data$Resilience == "L", 0.55,
-                               ifelse(data$Resilience == "M", 0.06, 
-                                      ifelse(data$Resilience == "H", 0.01, NA)))
-
-data$Persistence.Score = ifelse(data$Persistence == "C", 1,
-                                ifelse(data$Persistence == "H", 0.55,
-                                       ifelse(data$Persistence == "M", 0.06, 
-                                              ifelse(data$Persistence == "L", 0.01, NA))))
+# data$Resilience.Score = ifelse(data$Resilience == "L", 0.55,
+#                                ifelse(data$Resilience == "M", 0.06, 
+#                                       ifelse(data$Resilience == "H", 0.01, NA)))
+# 
+# data$Persistence.Score = ifelse(data$Persistence == "C", 1,
+#                                 ifelse(data$Persistence == "H", 0.55,
+#                                        ifelse(data$Persistence == "M", 0.06, 
+#                                               ifelse(data$Persistence == "L", 0.01, NA))))
 
 
 
