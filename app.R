@@ -1,6 +1,8 @@
 library(shiny)
 library(DiagrammeR)
 library(stringr)
+library(readODS)
+library(dplyr)
 
 rm(list=ls()) #removing previous objects
 
@@ -10,7 +12,9 @@ options(max.print=1000000000)
 # raw = read.csv("Data/Celtic_SeaS_Pressure_Assessment_PB.csv")
 raw = read.csv("Data/SBS_Pressure_Assessment_V3.csv")
 
+
 data = raw[!raw$Overlap == "NO", ]
+
 
 #Remove empty spaces at ecochar string
 data$Ecological.Characteristic<-str_trim(data$Ecological.Characteristic, side = c("both"))
