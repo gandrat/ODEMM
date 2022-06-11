@@ -13,34 +13,28 @@ require(readxl)
 require(xlsx)
 
 #Changing the variables from WP1 data--------------
-load("Data/SBS_v3.Rda")
-df<-data%>%transmute(Sector=Sector,
-                     Pressure=Pressure,
-                     Ecological.Characteristic=Ecological.Characteristic,
-                     Overlap=Overlap,
-                     Frequency=Frequency,
-                     DoI=DoI)
-
-write.xlsx(df,'Data/sbs_v4.xlsx')
 
 #Function for merging tables WP1/WP7-----------
-Add_Matrices <- function(input, excel_file) {
-  
+
   # input is a dataframe with columns "Sector" "Pressure" 
   # "Ecological.Characteristic" "Overlap" Frequency "DoI"
   # excel_file is the full path as a character string to a two sheet xlsx file 
   # with a sheet "Persistence" containg one matrix, and another in sheet "Resilience"
   
   # DO NOT UNCOMMENT, FOR FUNCTION DEVELOPMENT  
-  # input <- readxl::read_xlsx("./InputLetters.xlsx")
-  # excel_file <- "./Example matrix.xlsx"
+  input <- readxl::read_xlsx("Data/sbs_v5 - Gabi.xlsx")
+  # input <- readxl::read_xlsx("Data/sbs_v4.xlsx")
+  input$...1<-NULL
+  names(input)[3]<-'EcoChar'
+  excel_file <- "Data/MA_Vulnerability_Linkage_Framework_SBS_V3_May_2022.xlsx"
   
   ## Process resilience matrix
   Resilience <- readxl::read_xlsx(excel_file, sheet = "Resilience")    # Import matrix
   Resilience <- dplyr::rename(Resilience, Pressure = `...1`)           # Overwrite the column name generated for empty cell A1
   Resilience <- tidyr::pivot_longer(Resilience, -Pressure,             # Convert to long-format dataframe
-                                    names_to = "Ecological.Characteristic", values_to = "Resilience")
-  Resilience <- dplyr::left_join(input, Resilience)                    # Bind to input object 
+                                    names_to = "EcoChar", values_to = "Resilience")
+  
+  Resilience <- input%>%left_join(Resilience, by=c('EcoChar','Pressure'))                    # Bind to input object 
   
   ## Process Persistence matrix
   Persistence <- readxl::read_xlsx(excel_file, sheet = "Persistence")  # Import matrix
@@ -48,12 +42,13 @@ Add_Matrices <- function(input, excel_file) {
   Persistence_sector <- dplyr::filter(Persistence, !is.na(Sector))     # Limit to scores with a specific sector
   Persistence_sector <- tidyr::separate_rows(Persistence_sector, Sector, sep = ", ") # Create a unique row per sector, duplicating scores
   Persistence_sector <- tidyr::pivot_longer(Persistence_sector, -c(Sector, Pressure), # Convert to long-format dataframe
-                                            names_to = "Ecological.Characteristic", values_to = "Persistence")
+                                            names_to = "EcoChar", values_to = "Persistence")
   
   Persistence_all <- dplyr::filter(Persistence, is.na(Sector))         # Import matrix
   Persistence_all <- dplyr::select(Persistence_all, -Sector)           # Limit to scores without specific sector
   Persistence_all <- tidyr::pivot_longer(Persistence_all, -Pressure,   # Convert to long-format dataframe
-                                         names_to = "Ecological.Characteristic", values_to = "Persistence")
+                                         names_to = "EcoChar", values_to = "Persistence")
+  
   
   ## Combine 
   
@@ -63,26 +58,21 @@ Add_Matrices <- function(input, excel_file) {
   add2 <- dplyr::anti_join(Resilience, Persistence_sector)             # Limit the resilience data to matches without sector-specific persistence
   add2 <- dplyr::left_join(add2, Persistence_all)                      # Combine resilience and persistence
   
-  COMBINED <- dplyr::bind_rows(add, add2)                              # Add together sector and non-sector specific persistence
+  data <- dplyr::bind_rows(add, add2)                              # Add together sector and non-sector specific persistence
   
-  return(COMBINED)
-}
+  
 
-## Example - change to your input files
-InputLetters <- readxl::read_xlsx("Data/sbs_v4.xlsx")
-data <- Add_Matrices(InputLetters, "Data/MA_Vulnerability_Linkage_Framework_SBS_V3_May_2022.xlsx")
 
-unique(data$Ecological.Characteristic)
+# Removing rows with NAs
+data<-data%>%filter(complete.cases(data))
 
-# data$Ecological.Characteristic <- gsub("Demersal Elasmo", "Demersal Elasmobranch", data$Ecological.Characteristic)
-# data$Ecological.Characteristic <- gsub("Deep Sea Elasmo", "Deep Sea Elasmobranch", data$Ecological.Characteristic)
-# data$Ecological.Characteristic <- gsub("Pelagic Elasmo", "Pelagic Elasmobranch", data$Ecological.Characteristic)
-
+unique(data$EcoChar)
+unique(data$Sector)
 
 
 # If using InputLetters score each rating 
-data$Overlap.Score = ifelse(data$Overlap == "WE", 1,
-                          ifelse(data$Overlap == "WP", 0.67,   
+data$Overlap.Score = ifelse(data$Overlap == "W", 1,
+                          ifelse(data$Overlap == "W", 1,   
                             ifelse(data$Overlap == "L", 0.37, 
                                    ifelse(data$Overlap == "S", 0.03, 
                                      ifelse(data$Overlap == "E", 0.01, NA)))))
@@ -112,9 +102,37 @@ data$Ryr =  (data$Resilience.Score + data$Persistence.Score) *100
 
 data$TotalRisk = data$ImpactRisk * data$RecoveryLag
 
-names(data)[4]<-'EcoChar'
+# dataWP7v4<-data
+dataWP7v5<-data
+#Checking inconsistences with WP1 results------------
 
-# Removing rows with NAs
-data<-data%>%filter(complete.cases(data))
+load('Data/SBS_v3.Rda')
+require(forcats)
 
-write.xlsx(data,'Data/MA_SBS_Pressures_and_Vulnerabilities.xlsx')
+wp1<-data%>%group_by(Sector)%>%summarise(ImpactRisk=sum(ImpactRisk))
+wp1<-wp1%>%mutate(WP='WP1')
+
+wp7v4<-dataWP7v4%>%group_by(Sector)%>%summarise(ImpactRisk=sum(ImpactRisk))
+wp7v4<-wp7v4%>%mutate(WP='WP7 - V4')
+
+wp7v5<-dataWP7v5%>%group_by(Sector)%>%summarise(ImpactRisk=sum(ImpactRisk))
+wp7v5<-wp7v5%>%mutate(WP='WP7 - V5')
+
+
+IR<-wp1%>%mutate(Sector=fct_reorder(as.factor(Sector),ImpactRisk))
+
+
+IR<-rbind(IR,wp7v5,wp7v4)
+# IR<-rbind(IR,wp7ryr)
+
+
+ggplot(IR, aes(x=Sector,y=ImpactRisk))+geom_bar(stat='sum')+
+  coord_flip()+
+  facet_wrap(~WP)+
+  theme_bw()+
+  theme(legend.position = 'none')
+
+
+
+write.xlsx(dataWP7v4,'Data/MA_SBS_Pressures_and_Vulnerabilities_v4.xlsx')
+write.xlsx(dataWP7v5,'Data/MA_SBS_Pressures_and_Vulnerabilities_v5.xlsx')
