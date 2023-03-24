@@ -17,7 +17,7 @@ theme_set(
 
 # Load df -----------
 # Saved after 00_preprocess.R script
-load("Data/SBS_v3.Rda")
+load("Data/SBS_v4.Rda")
 data.m<-melt(data%>%select(Sector, Pressure, Ecological.Characteristic,ImpactRisk),id=c('ImpactRisk'))
 
 #Grid for all relationships-----------
