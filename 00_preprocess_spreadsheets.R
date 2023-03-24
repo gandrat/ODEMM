@@ -2,13 +2,13 @@ require(readODS)
 require(dplyr)
 require(tidyverse)
 
-#Loading sample data in Libreoffice spreadsheet format
-raw = read_ods("Pressure_Assessment_sample.ods")
+#Load data (Libreoffice spreadsheet format)-----------
+raw = read_ods("Data/SBS_Pressure_Assessment_V4.ods")
 
-
+# Remove non-existent links
 data = raw[!raw$Overlap == "NO", ]
 
-# score each rating according to Knight et al 2015
+# Score each rating according to Knights et al. 2015-------
 data$Overlap.Score = ifelse(data$Overlap == "W", 1,
                             ifelse(data$Overlap == "L", 0.37, 
                                    ifelse(data$Overlap == "S", 0.03, NA)))
@@ -25,14 +25,9 @@ data$DoI.Score = ifelse(data$DoI == "A" , 1,
 ### Calculate Impact Risk, Recovery Lag and Total Risk
 data$ImpactRisk = data$Overlap.Score*data$Frequency.Score*data$DoI.Score
 
-
 data<-data[complete.cases(data),]
 
-
-save(data,file='Data/SBS_v3.Rda')
-
-
-#Set factor levels--------------
+#Set factor levels and renaming categories--------------
 data$Overlap<-factor(data$Overlap,levels = c('S','L','W'))
 data$Frequency<-factor(data$Frequency,levels = c('R','O','C','P'))
 data$DoI<-factor(data$DoI,levels = c('L','C','A'))
