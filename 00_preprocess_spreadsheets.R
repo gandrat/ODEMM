@@ -3,7 +3,7 @@ require(dplyr)
 require(tidyverse)
 
 #Load data (Libreoffice spreadsheet format)-----------
-raw = read_ods("Data/SBS_Pressure_Assessment_V4.ods")
+raw = read_ods("Data/trindade_v1.ods")
 
 # Remove non-existent links
 data = raw[!raw$Overlap == "NO", ]
@@ -49,4 +49,4 @@ data$Confidence<-factor(data$Confidence,levels=c('No Specific Expertise','Specif
                                                  'Global Literature','Regional Literature',
                                                  'Data Regional - Monitoring'))
 
-save(data,file='Data/SBS_v3.Rda')
+save(data,file='Data/trindade_v1.Rda')

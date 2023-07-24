@@ -8,12 +8,14 @@ library(stringr)
 rm(list=ls()) #removing previous objects
 
 #Load df saved after 00_preprocess.R script
-load("Data/SBS_v4.Rda")
+load("Data/trindade_v1.Rda")
 unique(data$Sector)
 unique(data$Pressure)
 
 data$Pressure<-str_replace(data$Pressure,'Introduction of Contaminating compounds','Contaminating compounds')
 unique(data$Pressure)
+
+data$Pressure<- str_replace(data$Pressure, '/', ' - ')
 
 #Reorganize df to source>target
 data$id<-as.character(row.names(data))
@@ -48,7 +50,7 @@ links$IDsource <- match(links$source, nodes$name)-1
 links$IDtarget <- match(links$target, nodes$name)-1
 nodes<-data.frame(nodes)
 nodes$name<-as.character(nodes$name)
-nodes[6,1]<-'Input of Organic Matter'
+
 
 links<-data.frame(links)
 links<-links%>%arrange(value,IDsource,IDtarget)
@@ -56,10 +58,10 @@ links<-links%>%arrange(value,IDsource,IDtarget)
 
 
 # prepare color scale: I give one specific color for each node.
-n <- length(unique(links$linkgroup))
-pal <- unlist(mapply(brewer.pal,n,'Set2'))
-pal2<-unlist(mapply(brewer.pal,n-nrow(pal),'Dark2'))
-pal<-rbind(pal,pal2)
+n <- length(unique(links$linkgroup))+1
+pal <- unlist(mapply(brewer.pal,n,'Dark2'))
+# pal2<-unlist(mapply(brewer.pal,n-nrow(pal),'Dark2'))
+# pal<-rbind(pal,pal2)
 
 pal<-paste(shQuote(pal), collapse=", ")
 dom<-unique(links$linkgroup)
@@ -67,19 +69,20 @@ dom<-paste(shQuote(dom), collapse=", ")
 
 my_color <-paste0("d3.scaleOrdinal().domain([",dom,",'nodes']).range([",pal,",'grey'])")
 
-
+my_color<-"d3.scaleOrdinal().domain(['Litter', 'Species Extraction', 'Bycatch','nodes','c']).range(['#D95F02', '#7570B3','#1B9E77','grey'])"
 
 # Make the Network. I call my colour scale with the colourScale argument
 p <- sankeyNetwork(Links = links, Nodes = nodes, Source = "IDsource", Target = "IDtarget", 
                    Value = "value", NodeID = "name",
-                   fontSize = 20, fontFamily = 'Times',
-                   colourScale=my_color, LinkGroup="linkgroup",NodeGroup = "group",iterations=0)
+                   fontSize = 16, fontFamily = 'Helvetica',
+                   colourScale=my_color, LinkGroup="linkgroup",NodeGroup = "group",iterations=3)
 p
 
+# '#1B9E77''#D95F02''#7570B3'
 # save the widget
 library(htmlwidgets)
-saveWidget(p, file='figures/sankeySBS.html')
+saveWidget(p, file='figures/sankey_trindade.html')
 
 # save the widget
 library(webshot)
-webshot("figures/sankeySBS.html","figures/sankey_SBS.jpg", vwidth = 900, vheight = 1000)
+webshot("figures/sankey_trindade.html","figures/sankey_trindade.jpg", vwidth = 900, vheight = 1000)
